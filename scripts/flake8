@@ -46,10 +46,11 @@ source "${DIR}/util.sh"
 activate_venv=$(venv_activation_command "$VENVPATH")
 is_cibuild || { venv_validate "$VENVPATH"; eval "${activate_venv}"; }
 
-set +e
-python -c 'import flake8' &> /dev/null || flake8_missing_error
 rev_shorthand='HEAD'
 is_cibuild && rev_shorthand='FETCH_HEAD'
+
+set +e
+python -c 'import flake8' &> /dev/null || flake8_missing_error
 base_commit=$(git merge-base origin/master "${rev_shorthand}")
 files_to_check=($(git diff --name-only "${base_commit}" | grep -E '\.py$'))
 UNSTAGED_FILES=($(git ls-files --others --exclude-standard | grep -E '\.py$'))

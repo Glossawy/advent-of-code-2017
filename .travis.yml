@@ -1,11 +1,29 @@
 language: python
+sudo: false
 python: 2.7
+
+addons:
+  apt:
+    sources: hvr-ghc
+    packages:
+      - cabal-install-1.24
+      - ghc-8.0.2
+
+cache:
+  apt: true
+  directories:
+    - .stack-root
+    - .stack-work
+    - $HOME/.stack
+    - .cabal-sandbox
+
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq haskell-platform
+  # Setup Stack
   - mkdir -p ~/.local/bin
-  - export PATH=$HOME/.local/bin:$PATH
+  - export PATH=$HOME/.cabal/bin:/opt/cabal/1.24/bin:/opt/ghc/8.0.2/bin:$HOME/.local/bin:$PATH
   - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+
 install: ./scripts/setup
+
 script:
   - ./scripts/cirun --python && ./scripts/cirun --haskell

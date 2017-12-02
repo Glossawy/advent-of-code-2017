@@ -3,6 +3,7 @@
 set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT="$(cd "${DIR}/.." && pwd)"
 VENVPATH="${DIR}/../venv"
 CIBUILD=${CIBUILD:-1}
 
@@ -41,6 +42,17 @@ pip install -q pip-tools
 pip-sync requirements.txt
 
 { ghci --help && cabal -h && stack; } &> /dev/null || missing_haskell_error
+ghc_version=$(ghc --version)
+cecho "${Yel}Using GHC: ${Whi}${ghc_version}"
+
+cecho "${Yel}Setting up haskell environment..."
+stack config set system-ghc --global true
+stack config set install-ghc --global false
+
+[ ! -d "${ROOT}/.cabal-sandbox" ] && ( cd "${ROOT}" && cabal sandbox init )
+
+stack_with_flags setup
+stack_with_flags build --test --dependencies-only --no-run-tests --fast
 
 cecho "${Gre}Successfully setup and ready to go!"
 cecho "${Gre}Activate venv using \`${Whi}. venv/bin/activate${Gre}\`"

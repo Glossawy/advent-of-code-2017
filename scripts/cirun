@@ -28,8 +28,9 @@ ci_python() {
 }
 
 ci_haskell() {
-  cd "${ROOT}"
-  return 0
+  cd "${ROOT}" || return 1
+
+  stack_with_flags build --test --fast
 }
 
 for arg in "${@}"; do
