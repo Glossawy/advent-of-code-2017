@@ -172,7 +172,7 @@ VENVPATH="${ROOT}/venv"
 req_file="${ROOT}/requirements.in"
 tmp_file="${ROOT}/requirements.new.in"
 swp_file="${ROOT}/requirements.swp.in"
-ext_requirements_file="${ROOT}/requirements_external.txt"
+ext_requirements_file="${ROOT}/requirements.txt"
 
 # shellcheck source=scripts/util.sh
 source "${DIR}/util.sh"

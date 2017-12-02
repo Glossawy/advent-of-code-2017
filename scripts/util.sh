@@ -29,8 +29,8 @@ prompt() {
 
 venv_missing_error() {
   cecho "${Red}Virtualenv Not Found Error"
-  [ $# -gt 0 ] && cecho "${RED}Expected at: ${1}"
-  cecho "${Yel}Did you rememebr to run\`${Whi}script/install${Yel}\`?"
+  [ $# -gt 0 ] && cecho "${Red}Expected at: ${1}"
+  cecho "${Yel}Did you rememebr to run\`${Whi}script/setup${Yel}\`?"
   exit 1
 }
 

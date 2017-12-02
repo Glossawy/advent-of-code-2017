@@ -4,6 +4,7 @@ set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT=$(dirname "${DIR}")
+CITYPE=unspecified
 
 # shellcheck source=scripts/util.sh
 source "${DIR}/util.sh"
@@ -12,7 +13,7 @@ activate="$(venv_activation_command "${ROOT}/venv")"
 ci_failed() {
   printf "${Red}"
   [ $# -gt 0 ] && echo "${1}"
-  echo "CI Build Failed! ✖"
+  echo "${Whi}${CITYPE^} ${Red}- CI Build Failed! ✖"
   printf "${RESET}"
 
   exit 1
@@ -33,10 +34,12 @@ ci_haskell() {
 
 for arg in "${@}"; do
   case "$arg" in
-    -p|--python) ci_python; break;;
-    -H|--haskell) ci_haskell; break;;
+    -p|--python) CITYPE='python'; break;;
+    -H|--haskell) CITYPE='haskell'; break;;
   esac
 done
 
+ci_${CITYPE}
+
 echo
-cecho "${Gre}CI Build Passed! ✔"
+cecho "${Whi}${CITYPE^} ${Gre}- CI Build Passed! ✔"
