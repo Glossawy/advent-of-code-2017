@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+echo "Running setup..."
+"${DIR}/setup"
+echo "Setup complete."
+
+"${DIR}/cirun" "${@}"

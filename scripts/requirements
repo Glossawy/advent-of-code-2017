@@ -1,0 +1,216 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+    cat <<'USAGE'
+requirements <command> [...]
+             help <command>
+
+Adds the given requirements to requirements.in, compiles a new
+requirements_external.txt and syncs the current environment.
+
+commands:
+    add      Add requirement to requirements.in
+    sync     Sync virtualenv with requirements_external.txt
+    compile  Compile requirements_external.txt
+    help     Prints usage information for another command
+USAGE
+}
+
+add_usage() {
+  cat <<'ADD'
+requirements add <requirement> [...flags] [...requirements]
+
+flags:
+    -y,--confirm  Automatically confirm prompt
+    -c,--compile  Compile new requirements_external.txt after additions
+    -s,--sync     Sync virtualenv after additions, requires -c
+ADD
+}
+
+sync_usage() {
+  cat <<'SYNC'
+requirements sync
+
+Runs pip-sync on the external requirements file, this will force the virtualenv to be
+up to date. This will also delete packages not part of the requirements.
+SYNC
+}
+
+compile_usage() {
+  cat <<'COMPILE'
+requirements compile [-s|--sync]
+
+Runs pip-compile to create an external requirements file from the packages found
+in requirements.in. This will pin lib versions. Optionally, sync after compilation.
+
+flags:
+    -s, --sync   Sync virtualenv packages with requirements file after compilation
+COMPILE
+}
+
+cleanup_swap() {
+  rm -f "${tmp_file}" "${swp_file}"
+}
+
+add_requirements() {
+  set +u
+  [ $# -eq 0 ] && add_usage && return 1
+  local run_compile run_sync new_requirements current requirements swap_status \
+        compile_flags status
+
+  run_compile=false; run_sync=false; autoconfirm=false; status=0
+  new_requirements=()
+
+  # Read in current packages in requirements.in
+  set +e
+  current=()
+  while IFS= read -r line; do current+=("$line"); done < "${req_file}"
+  set -e
+
+  # Parse options and arguments, ignoring positional arguments that are already in
+  # the requirements
+  for flag in "$@"; do
+    case "$flag" in
+      -y|--confirm) autoconfirm=true;;
+      -c|--compile) run_compile=true;;
+      -s|--sync) run_sync=true;;
+      -*) add_usage; return 1;;
+      *) [[ "${current[*]}" =~ ${1} ]] || new_requirements+=("$1"); ;;
+    esac
+
+    shift
+  done
+
+  # No New Requirements and -c -s Checks
+  [ ${#new_requirements[@]} -eq 0 ] && cecho "${Yel}No new requirements to add." && return 1
+  if ${run_sync} && ! ${run_compile}; then
+    cecho "${Red}Syncing requires compiling when adding requirements!"
+    add_usage
+    return 1
+  fi
+
+  # Merge and write out new list of requirements to tmp file
+  requirements=( "${current[@]}" "${new_requirements[@]}" )
+  printf "%s\n" "${requirements[@]}" > "${tmp_file}"
+  new_content=$(cat "${tmp_file}")
+
+  cecho "${Whi}New Requirements List:"
+  echo "-----------------------------------"
+  cecho "${Whi}$new_content"
+  echo "-----------------------------------"
+  echo
+
+  set +e
+  swap_status=true
+  if ${autoconfirm} || prompt "Use these new requirements? [Yy|Nn]: "; then
+    mv "${req_file}" "${swp_file}" || swap_status=false
+    ${swap_status} && { mv "${tmp_file}" "${req_file}" || swap_status=false; }
+    ${swap_status} || cat "${swp_file}" > "${req_file}"
+  else
+    cleanup_swap
+    return 0
+  fi
+  set -e
+
+  if ${swap_status}; then
+    cecho "${Gre}Success! Requirements updated."
+  else
+    cecho "${Red}Failure! Requirements kept the same. Failed to replace old requirements file."
+  fi
+
+  # Pass down to compile_requirements if requested (with sync flag if needed)
+  if ${run_compile}; then
+    set +e
+    compile_flags=
+    ${run_sync} && compile_flags='-s'
+    compile_requirements ${compile_flags}
+    status=$?
+    set -e
+  fi
+
+  cleanup_swap
+  return ${status}
+}
+
+compile_requirements() {
+  local run_sync status
+  run_sync=false
+  status=0
+  for option in "$@"; do
+    case "$option" in
+      -s|--sync) run_sync=true; break;;
+      *) compile_usage; return 1; break;;
+    esac
+  done
+
+  CUSTOM_COMPILE_COMMAND="$(basename "$DIR")/requirements compile" \
+  pip-compile --output-file "${ext_requirements_file}" "${req_file}"
+
+  echo
+  cecho "${Gre}Success! New requirements file compiled."
+
+  if ${run_sync}; then
+    set +e
+    sync_requirements
+    status=$?
+    set -e
+  fi
+
+  return ${status}
+}
+
+sync_requirements() {
+  pip-sync "${ext_requirements_file}"
+  cecho "\n${Gre}Success! Virtualenv now synced to requirements!"
+}
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT=$(dirname "$DIR")
+VENVPATH="${ROOT}/venv"
+
+req_file="${ROOT}/requirements.in"
+tmp_file="${ROOT}/requirements.new.in"
+swp_file="${ROOT}/requirements.swp.in"
+ext_requirements_file="${ROOT}/requirements.txt"
+
+# shellcheck source=scripts/util.sh
+source "${DIR}/util.sh"
+activate_venv=$(venv_activation_command "$VENVPATH")
+venv_validate "$VENVPATH"
+eval "${activate_venv}"
+
+# Arg Check
+[ $# -eq 0 ] && usage && exit 1
+command=$1
+shift
+
+command_not_found() {
+  cecho "${Red}Command \`${Whi}${1}${Red}\` not found."
+  usage
+  return 1
+}
+
+help_text() {
+  [ -z "${1:-}" ] && usage && return 1
+
+  case "$1" in
+    add) add_usage;;
+    sync) sync_usage;;
+    compile) compile_usage;;
+    *) command_not_found "$1"; return 1;;
+  esac
+
+  return 0
+}
+
+status=0
+case "$command" in
+  add) add_requirements "$@"; status=$?;;
+  sync) sync_requirements; status=$?;;
+  compile) compile_requirements "$@"; status=$?;;
+  help) help_text "${1:-}"; status=$?;;
+  *) command_not_found "$command"; exit 1;;
+esac
+
+exit ${status}
