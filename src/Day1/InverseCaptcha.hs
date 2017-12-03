@@ -8,10 +8,10 @@ import Util.SplitList (splitListInTwo)
 -- See: String, Int, etc.
 
 -- Part 1
-inverseCaptcha :: (Ord a, Eq a, Monoid a) => [a] -> a
+inverseCaptcha :: (Ord a, Monoid a) => [a] -> a
 inverseCaptcha = mconcat . matchesNeighbor
 
-matchesNeighbor :: (Ord a, Eq a) => [a] -> [a]
+matchesNeighbor :: (Ord a) => [a] -> [a]
 matchesNeighbor [] = []
 matchesNeighbor l@(x:_) = findNeighborMatchers [] (l ++ [x])
   where findNeighborMatchers s (a:b:vs)
@@ -21,10 +21,10 @@ matchesNeighbor l@(x:_) = findNeighborMatchers [] (l ++ [x])
 
 
 -- Part 2
-inverseCaptchaHalfsies :: (Ord a, Eq a, Monoid a) => [a] -> a
+inverseCaptchaHalfsies :: (Ord a, Monoid a) => [a] -> a
 inverseCaptchaHalfsies = mconcat . uncurry matchesOtherList . splitListInTwo
 
-matchesOtherList :: (Ord a, Eq a, Monoid a) => [a] -> [a] -> [a]
+matchesOtherList :: (Ord a, Monoid a) => [a] -> [a] -> [a]
 matchesOtherList = findMatching []
   where findMatching s (x:xs) (y:ys)
           | x == y    = findMatching ( x <> y : s) xs ys
