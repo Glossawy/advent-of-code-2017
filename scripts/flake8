@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT="$(cd "${DIR}/.." && pwd)"
+VENVPATH="${ROOT}/venv"
+CHK_UNSTAGED=false
+UNSTAGED_FILES=()
+FLAKE_FLAGS=("")
+
+usage() {
+  cat <<'USAGE'
+script/flake8 [...options]
+
+Options:
+  -u,--with-unstaged)   Include unstaged files in QA check
+  -h,--help)            This usage text
+USAGE
+}
+
+flake8_missing_error() {
+  cecho "${Red}Flake8 not installed!"
+  cecho "${Yel}Run \`${Whi}pip install flake8${Yel}\`, then retry"
+  exit 1
+}
+
+print_unstaged_warning() {
+  if [ ${#UNSTAGED_FILES[@]} -eq 0 ] || ${CHK_UNSTAGED}; then return 1; fi
+  cecho "${Yel}WARNING: There are unstaged changes that are not included in this QA check!"
+  cecho "${Yel}         Use ${Whi}--with-unstaged${Yel} to include these changes."
+  [ $# -gt 0 ] && [ "$1" == "-n" ] && echo
+
+  return 0
+}
+
+for opt in "$@"; do
+  case "$opt" in
+    -u|--with-unstaged) CHK_UNSTAGED=true;;
+    -h|--help) usage; exit 0;;
+    *) FLAKE_FLAGS+=("$opt");;
+  esac
+done
+
+# shellcheck source=scripts/util.sh
+source "${DIR}/util.sh"
+activate_venv=$(venv_activation_command "$VENVPATH")
+is_cibuild || { venv_validate "$VENVPATH"; eval "${activate_venv}"; }
+
+rev_shorthand='HEAD'
+is_cibuild && rev_shorthand='FETCH_HEAD'
+
+set +e
+python -c 'import flake8' &> /dev/null || flake8_missing_error
+base_commit=$(git merge-base origin/master "${rev_shorthand}")
+files_to_check=($(git diff --name-only "${base_commit}" | grep -E '\.py$'))
+UNSTAGED_FILES=($(git ls-files --others --exclude-standard | grep -E '\.py$'))
+
+if ${CHK_UNSTAGED} && [ ${#UNSTAGED_FILES[@]} -gt 0 ];
+then
+  files_to_check=(${files_to_check[@]+"${files_to_check[@]}"} "${UNSTAGED_FILES[@]}")
+fi
+set -e
+
+if [ ${#files_to_check[@]} -eq 0 ]
+then
+  set +e; print_unstaged_warning -n; set -e
+  cecho "${Yel}No files to check for your changes."
+  cecho "${Yel}Only changes (from ${Whi}origin/master${Yel}'s perspective) are considered."
+  exit 0
+fi
+
+output=$(git diff -U0 "${base_commit}" -- "${files_to_check[@]}" | python -m flake8 --diff "${FLAKE_FLAGS[@]}" || echo)
+
+border() { cecho "${Bold}${Gre}――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――"; }
+echo
+cecho "${Bold}${Blu}Checking files:"
+border
+printf "${Blu}%s\n" "${files_to_check[@]}"
+border
+
+print_unstaged_warning && border
+echo
+
+if [ ! -z "$output" ]
+then
+  cecho "$output\n"
+  cecho "${Red}Failure! Your code violates our Flake8 style guidelines!"
+  exit 1
+else
+  cecho "${Gre}Success! Your code is not filthy."
+fi
