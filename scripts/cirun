@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2059,SC2120
+set -euo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT=$(dirname "${DIR}")
+CITYPE=unspecified
+
+# shellcheck source=scripts/util.sh
+source "${DIR}/util.sh"
+activate="$(venv_activation_command "${ROOT}/venv")"
+
+ci_failed() {
+  printf "${Red}"
+  [ $# -gt 0 ] && echo "${1}"
+  echo "${Whi}${CITYPE^} ${Red}- CI Build Failed! ✖"
+  printf "${RESET}"
+
+  exit 1
+}
+
+ci_python() {
+  cd "${ROOT}/python" || return 1
+  is_cibuild || eval "${activate}"
+
+  "${DIR}/flake8" || ci_failed
+  python -m unittest discover || ci_failed
+}
+
+ci_haskell() {
+  cd "${ROOT}" || return 1
+
+  stack_with_flags build --test --fast
+}
+
+for arg in "${@}"; do
+  case "$arg" in
+    -p|--python) CITYPE='python'; break;;
+    -H|--haskell) CITYPE='haskell'; break;;
+  esac
+done
+
+ci_${CITYPE}
+
+echo
+cecho "${Whi}${CITYPE^} ${Gre}- CI Build Passed! ✔"
