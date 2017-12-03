@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2059
+set -euo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT="$(cd "${DIR}/.." && pwd)"
+VENVPATH="${DIR}/../venv"
+CIBUILD=${CIBUILD:-1}
+
+# shellcheck source=scripts/util.sh
+source "${DIR}/util.sh"
+activate="$(venv_activation_command "${VENVPATH}")"
+
+missing_virtualenv_error() {
+  printf "${Red}"
+  echo "Cannot proceed! Please install virtualenv:"
+  cecho "  \`${Whi}python -m pip install virtualenv${Red}\`"
+  printf "${RESET}"
+  exit 1
+}
+
+missing_haskell_error() {
+  printf "${Red}"
+  echo "Cannot proceed! Please install haskell (GHC + GHCi):"
+  echo "  Make sure to also install stack and cabal."
+  printf "${RESET}"
+  exit 1
+}
+
+cd "${DIR}/.."
+
+# Local development needs some setup
+# CI is in a venv already
+if ! is_cibuild;
+then
+  { virtualenv -h; } &> /dev/null || missing_virtualenv_error
+  [ ! -d "$VENVPATH" ] && virtualenv -p python2.7 "$VENVPATH"
+  eval "${activate}"
+fi
+
+pip install -q pip-tools
+pip-sync requirements.txt
+
+{ ghci --help && cabal -h && stack; } &> /dev/null || missing_haskell_error
+ghc_version=$(ghc --version)
+cecho "${Yel}Using GHC: ${Whi}${ghc_version}"
+
+cecho "${Yel}Setting up haskell environment..."
+stack config set system-ghc --global true
+stack config set install-ghc --global false
+
+[ ! -d "${ROOT}/.cabal-sandbox" ] && ( cd "${ROOT}" && cabal sandbox init )
+
+stack_with_flags setup
+stack_with_flags build --test --dependencies-only --no-run-tests --fast
+
+cecho "${Gre}Successfully setup and ready to go!"
+cecho "${Gre}Activate venv using \`${Whi}. venv/bin/activate${Gre}\`"
