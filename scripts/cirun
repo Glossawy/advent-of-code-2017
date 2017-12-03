@@ -12,8 +12,8 @@ activate="$(venv_activation_command "${ROOT}/venv")"
 
 ci_failed() {
   printf "${Red}"
-  [ $# -gt 0 ] && echo "${1}"
-  echo "${Whi}${CITYPE^} ${Red}- CI Build Failed! ✖"
+  [ $# -gt 0 ] && cecho "${1}"
+  cecho "${Whi}${CITYPE^} ${Red}- CI Build Failed! ✖"
   printf "${RESET}"
 
   exit 1
@@ -24,7 +24,7 @@ ci_python() {
   is_cibuild || eval "${activate}"
 
   "${DIR}/flake8" || ci_failed
-  python -m unittest discover || ci_failed
+  python -m unittest discover -v || ci_failed
 }
 
 ci_haskell() {

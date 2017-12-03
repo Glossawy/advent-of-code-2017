@@ -1,20 +1,28 @@
 module Main where
-import Test.Tasty (defaultMain, testGroup, TestTree, withResource)
+import Test.Tasty (defaultMain, testGroup, TestTree)
 import Test.Tasty.HUnit (testCase)
 
-import qualified InverseCaptchaTest as ICT (partOneOfPuzzleHolds, partTwoOfPuzzleHolds)
-import TestUtils (readDataFile)
+import qualified InverseCaptchaTest as ICT
+import ChecksumTest (corruptionChecksumTestGroup)
+import TestUtils (testTreeWithData)
 
 main :: IO ()
-main = do
-  let release = const (return ())
-  defaultMain $ withResource (readDataFile ["Day1", "inversecaptcha"]) release unitTests
+main = defaultMain unitTests
 
-unitTests :: IO String -> TestTree
-unitTests invCaptchaAction =
+unitTests :: TestTree
+unitTests =
   testGroup
-    " Advent of Code 2017 - Day 1 - Inverse Captcha"
+    " Advent of Code 2017"
     [
-      testCase "Part One Holds" $ invCaptchaAction >>= ICT.partOneOfPuzzleHolds,
-      testCase "Part Two Holds" $ invCaptchaAction >>= ICT.partTwoOfPuzzleHolds
+      testTreeWithData ["Day1", "inversecaptcha"] invCaptchaTests,
+      corruptionChecksumTestGroup
+    ]
+
+invCaptchaTests :: IO String -> TestTree
+invCaptchaTests testData =
+  testGroup
+    "Day 1 - Inverse Captcha"
+    [
+      testCase "Part One Holds" $ testData >>= ICT.partOneOfPuzzleHolds,
+      testCase "Part Two Holds" $ testData >>= ICT.partTwoOfPuzzleHolds
     ]
