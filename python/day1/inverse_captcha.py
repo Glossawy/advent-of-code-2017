@@ -49,13 +49,13 @@ def inverseCaptchaHalfsies(xs):
     return sum_eq(front, tail, transform=operator.add)
 
 
-def read_input():
-    return [int(c) for c in raw_input()]
+if __name__ == '__main__':
+    def read_input():
+        return [int(c) for c in raw_input()]
 
-
-if '-p1' in argv:
-    print inverseCaptchaNeighbors(read_input())
-elif '-p2' in argv:
-    print inverseCaptchaHalfsies(read_input())
-else:
-    print 'Please specify part 1 (-p1) or part 2 (-p2)'
+    if '-p1' in argv:
+        print inverseCaptchaNeighbors(read_input())
+    elif '-p2' in argv:
+        print inverseCaptchaHalfsies(read_input())
+    else:
+        print 'Please specify part 1 (-p1) or part 2 (-p2)'
