@@ -43,6 +43,9 @@ cabal-version:       >=1.10
 library
   -- Modules exported by the library.
   exposed-modules:      Day1.InverseCaptcha
+                       ,Day2.Checksum
+                       ,Day2.CorruptionChecksum
+                       ,Day2.DivisibleChecksum
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -64,6 +67,7 @@ library
 Test-Suite test-advent
   type:                exitcode-stdio-1.0
   other-modules:       InverseCaptchaTest
+                      ,ChecksumTest
                       ,TestUtils
   hs-source-dirs:      tests
   main-is:             Tests.hs
