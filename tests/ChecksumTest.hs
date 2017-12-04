@@ -4,7 +4,6 @@ import TestUtils (strip, readDataFile, testTreeWithData)
 import Day2.CorruptionChecksum (minMaxChecksum, findMinMaxPair)
 import Day2.DivisibleChecksum (divisibleChecksum)
 
-import Data.Char
 import Data.Monoid
 
 import Test.Tasty (testGroup, TestTree)
