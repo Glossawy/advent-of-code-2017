@@ -46,6 +46,9 @@ library
                        ,Day2.Checksum
                        ,Day2.CorruptionChecksum
                        ,Day2.DivisibleChecksum
+                       ,Day3.UlamCursor
+                       ,Day3.Math
+                       ,Day3.SpiralMemory
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -68,6 +71,7 @@ Test-Suite test-advent
   type:                exitcode-stdio-1.0
   other-modules:       InverseCaptchaTest
                       ,ChecksumTest
+                      ,SpiralMemoryTest
                       ,TestUtils
   hs-source-dirs:      tests
   main-is:             Tests.hs

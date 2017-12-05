@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from day2.corruption_checksum import corruption_checksum, clean_input, find_divisible_pair, divisible_checksum
+from day2.corruption_checksum import corruption_checksum, clean_input, find_divisible_pair
+from day2.corruption_checksum import divisible_checksum
 from util.data import read_advent_data_file
 
 

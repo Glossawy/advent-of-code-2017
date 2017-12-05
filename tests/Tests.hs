@@ -4,6 +4,7 @@ import Test.Tasty.HUnit (testCase)
 
 import qualified InverseCaptchaTest as ICT
 import ChecksumTest (corruptionChecksumTestGroup)
+import SpiralMemoryTest (spiralMemoryTestGroup)
 import TestUtils (testTreeWithData)
 
 main :: IO ()
@@ -15,7 +16,8 @@ unitTests =
     " Advent of Code 2017"
     [
       testTreeWithData ["Day1", "inversecaptcha"] invCaptchaTests,
-      corruptionChecksumTestGroup
+      corruptionChecksumTestGroup,
+      spiralMemoryTestGroup
     ]
 
 invCaptchaTests :: IO String -> TestTree
