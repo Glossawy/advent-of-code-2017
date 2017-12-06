@@ -49,6 +49,8 @@ library
                        ,Day3.UlamCursor
                        ,Day3.Math
                        ,Day3.SpiralMemory
+                       ,Day4.HighEntropyPassphrases
+                       ,Day4.Sorts
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -72,7 +74,9 @@ Test-Suite test-advent
   other-modules:       InverseCaptchaTest
                       ,ChecksumTest
                       ,SpiralMemoryTest
+                      ,HighEntropyPassphrasesTest
                       ,TestUtils
+
   hs-source-dirs:      tests
   main-is:             Tests.hs
   build-depends:       base >= 3 && <4.10
@@ -81,4 +85,6 @@ Test-Suite test-advent
                       ,advent-of-code
                       ,directory
                       ,filepath
+                      ,random
+                      ,random-shuffle
   default-language:    Haskell2010
