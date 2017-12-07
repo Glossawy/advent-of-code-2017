@@ -6,6 +6,7 @@ import qualified InverseCaptchaTest as ICT
 import ChecksumTest (corruptionChecksumTestGroup)
 import SpiralMemoryTest (spiralMemoryTestGroup)
 import HighEntropyPassphrasesTest (highEntropyPassphrasesTestGroup)
+import JumpOnlyCpuTest (jumpOnlyCpuTestGroup)
 import TestUtils (testTreeWithData)
 
 main :: IO ()
@@ -19,7 +20,8 @@ unitTests =
       testTreeWithData ["Day1", "inversecaptcha"] invCaptchaTests,
       corruptionChecksumTestGroup,
       spiralMemoryTestGroup,
-      highEntropyPassphrasesTestGroup
+      highEntropyPassphrasesTestGroup,
+      jumpOnlyCpuTestGroup
     ]
 
 invCaptchaTests :: IO String -> TestTree

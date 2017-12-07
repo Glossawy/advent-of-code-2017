@@ -52,7 +52,7 @@ stack config set install-ghc --global false
 [ ! -d "${ROOT}/.cabal-sandbox" ] && ( cd "${ROOT}" && cabal sandbox init )
 
 stack_with_flags setup
-stack_with_flags build --test --dependencies-only --no-run-tests --fast
+stack_with_flags build --test --dependencies-only --no-run-tests --ghc-options="-O"
 
 cecho "${Gre}Successfully setup and ready to go!"
 cecho "${Gre}Activate venv using \`${Whi}. venv/bin/activate${Gre}\`"
