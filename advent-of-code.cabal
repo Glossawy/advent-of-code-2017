@@ -51,6 +51,7 @@ library
                        ,Day3.SpiralMemory
                        ,Day4.HighEntropyPassphrases
                        ,Day4.Sorts
+                       ,Day5.JumpOnlyCpu
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -61,6 +62,8 @@ library
 
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.9 && <4.10
+                       ,containers
+                       ,array
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -75,6 +78,7 @@ Test-Suite test-advent
                       ,ChecksumTest
                       ,SpiralMemoryTest
                       ,HighEntropyPassphrasesTest
+                      ,JumpOnlyCpuTest
                       ,TestUtils
 
   hs-source-dirs:      tests
