@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 from util.data import read_advent_data_file
 
 from day5.twisty_cpu import execute_jmp_program, increment_value, decrease_if_exceeds
@@ -21,5 +21,6 @@ class TwistyCpuTest(TestCase):
     def test_jmp_strange_program_example(self):
         self.assertEqual(10, execute_jmp_program([0, 3, 0, 1, -3], decrease_at_3))
 
+    @skip('Long running test, should only be run locally')
     def test_jmp_strange_program_puzzle_solution(self):
         self.assertEqual(29629538, execute_jmp_program(self.puzzle_input, decrease_at_3))
