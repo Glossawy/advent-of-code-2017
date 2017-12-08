@@ -7,6 +7,7 @@ import ChecksumTest (corruptionChecksumTestGroup)
 import SpiralMemoryTest (spiralMemoryTestGroup)
 import HighEntropyPassphrasesTest (highEntropyPassphrasesTestGroup)
 import JumpOnlyCpuTest (jumpOnlyCpuTestGroup)
+import MemoryReallocationTest (memoryReallocationTestGroup)
 import TestUtils (testTreeWithData)
 
 main :: IO ()
@@ -21,7 +22,8 @@ unitTests =
       corruptionChecksumTestGroup,
       spiralMemoryTestGroup,
       highEntropyPassphrasesTestGroup,
-      jumpOnlyCpuTestGroup
+      jumpOnlyCpuTestGroup,
+      testTreeWithData ["Day6", "p1-registers"] memoryReallocationTestGroup
     ]
 
 invCaptchaTests :: IO String -> TestTree
