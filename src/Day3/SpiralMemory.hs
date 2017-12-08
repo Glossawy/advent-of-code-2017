@@ -33,22 +33,23 @@ spiralFind n = Just $ last $ steps initialUlamCursor
 
   Suppose we are looking for spiralSteps(20):
 
-  Let's view the the spiral from n = 1..25 as a seires of 3 nested squares. The first square being
-  the one encapsulating 1, the second encapsulating 1..9 and the third encapsulating 1..25.
+  Let's view the spiral from n = 1..25 as a series of 3 nested squares. The first square being
+  the sqaure encapsulating 1, the second encapsulating 1..9 and the third encapsulating 1..25.
 
-  Imagine walking from the center-out, counting up for every step we take. When we enter a new square,
+  Imagine walking from the center-out in a spiral, counting up for every step we take. When we enter a new square,
   start at 1. When we reach a corner, reset to 0. That is, you get the sequence:
 
   1, 0, 1, 0, 1, 0, 1, 0
   or
   1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0
 
-  for i = 2..9 and i = 10..25, respectively. These values represent the distance from the corners of their most immediate, encapsulating
-  square for any value (i.e. the one they are on the perimeter of). Call this value the cornerOffset of x.
+  for i = 2..9 and i = 10..25, respectively (At step=0, the cornerOffset = 0). These values represent the distance from the corners
+  of their most immediate, encapsulating square for any value (i.e. the one they are on the perimeter of). Call this value the
+  cornerOffset of x.
 
   If we now imagine walking in an ordinal direction from the center, straight out, until we enter the square
-  containing 20, we end up at 11, 15, 19, or 23. All of those numbers have the cornerOffset of 2. This value
-  is the axisOffset for any value on the perimeter of the square.
+  containing 20, we end up at one of 11, 15, 19, or 23. All of those numbers have the cornerOffset of 2. This value
+  is the axisOffset for that square such that axisOffset(x) = axisOffset(Square) for all x in Perimeter(Square).
 
   Since the distance from the center is the manhattan (or taxicab) distance, we can choose the path consisting
   of the least turns, that is traversing to the nearest axis location (|axisOffset - cornerOffset|) and then
@@ -56,18 +57,21 @@ spiralFind n = Just $ last $ steps initialUlamCursor
 
   sprialDist(n) = axisOffset(n) + |axisOffset(n) - cornerOffset(n)|
 
-  * - For the sake of brevity, axisOffset(n) find the axisOffset for the square that has n on it's perimeter.
+  In compressed numerical form:
 
-  In the code below, the process of
-
+  if:
   axisOffset(n) = floor(ceil(sqrt(n)) / 2)  <-- Essentially, SquareSideLength/2 rounded down to match offset
-  cornerOffset(n) = (n - (2u-1)^2) mod 2u   <-- Note, as above, 2u = (SquareSideLength - 1)
-    where u = axisOffset(n)                     n - (2u-1)^2 strips out the internal square contents
+  cornerOffset(n) = (n - (2u-1)^2) mod 2u   <-- Note, as above, 2u = (SquareSideLength - 1 for the corner) because of the use of floor.
+    where u = axisOffset(n)                    | n - (2u-1)^2 strips out the internal square contents, leaving the perimeter of the square we care about
+  Then:
   spiralSteps(n) = axisOffset(n) + |cornerOffset(n) - axisOffset(n)|
 -}
 
+isqrt :: (Integral a, Floating b) => a -> b
+isqrt = sqrt . fromIntegral
+
 axisOffset :: Int -> Int
-axisOffset n = floor $ (fromIntegral . ceiling . sqrt . fromIntegral) n / 2.0
+axisOffset n = floor $ (fromIntegral . ceiling . isqrt) n / 2.0
 
 cornerOffset :: Int -> Int
 cornerOffset n =  rem (n - ((2 * aoff - 1) ^ 2)) $ 2 * aoff
