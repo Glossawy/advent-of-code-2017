@@ -52,6 +52,7 @@ library
                        ,Day4.HighEntropyPassphrases
                        ,Day4.Sorts
                        ,Day5.JumpOnlyCpu
+                       ,Day6.MemoryReallocation
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -64,6 +65,7 @@ library
   build-depends:       base >=4.9 && <4.10
                        ,containers
                        ,array
+                       ,vector
 
   -- Directories containing source files.
   hs-source-dirs:      src
@@ -79,6 +81,7 @@ Test-Suite test-advent
                       ,SpiralMemoryTest
                       ,HighEntropyPassphrasesTest
                       ,JumpOnlyCpuTest
+                      ,MemoryReallocationTest
                       ,TestUtils
 
   hs-source-dirs:      tests
