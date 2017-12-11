@@ -30,7 +30,7 @@ ci_python() {
 ci_haskell() {
   cd "${ROOT}" || return 1
 
-  stack_with_flags build --test --fast
+  stack_with_flags build --test --fast --ghc-options "-DCIBUILD"
 }
 
 for arg in "${@}"; do

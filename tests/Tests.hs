@@ -9,6 +9,7 @@ import HighEntropyPassphrasesTest (highEntropyPassphrasesTestGroup)
 import JumpOnlyCpuTest (jumpOnlyCpuTestGroup)
 import MemoryReallocationTest (memoryReallocationTestGroup)
 import RecursiveCircusTest (recursiveCircusTestGroup)
+import UnusualRegistersTest (unusualRegistersTestGroup)
 import TestUtils (testTreeWithData)
 
 main :: IO ()
@@ -26,6 +27,7 @@ unitTests =
      ,jumpOnlyCpuTestGroup
      ,testTreeWithData ["Day6", "p1-registers"] memoryReallocationTestGroup
      ,recursiveCircusTestGroup
+     ,unusualRegistersTestGroup
     ]
 
 invCaptchaTests :: IO String -> TestTree
