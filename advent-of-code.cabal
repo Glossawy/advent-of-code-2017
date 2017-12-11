@@ -53,6 +53,7 @@ library
                        ,Day4.Sorts
                        ,Day5.JumpOnlyCpu
                        ,Day6.MemoryReallocation
+                       ,Day7.RecursiveCircus
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -82,6 +83,7 @@ Test-Suite test-advent
                       ,HighEntropyPassphrasesTest
                       ,JumpOnlyCpuTest
                       ,MemoryReallocationTest
+                      ,RecursiveCircusTest
                       ,TestUtils
 
   hs-source-dirs:      tests
