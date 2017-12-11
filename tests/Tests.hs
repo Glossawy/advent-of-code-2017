@@ -10,6 +10,7 @@ import JumpOnlyCpuTest (jumpOnlyCpuTestGroup)
 import MemoryReallocationTest (memoryReallocationTestGroup)
 import RecursiveCircusTest (recursiveCircusTestGroup)
 import UnusualRegistersTest (unusualRegistersTestGroup)
+import StreamProcessingTest (streamProcessingTestGroup)
 import TestUtils (testTreeWithData)
 
 main :: IO ()
@@ -28,6 +29,7 @@ unitTests =
      ,testTreeWithData ["Day6", "p1-registers"] memoryReallocationTestGroup
      ,recursiveCircusTestGroup
      ,unusualRegistersTestGroup
+     ,streamProcessingTestGroup
     ]
 
 invCaptchaTests :: IO String -> TestTree
