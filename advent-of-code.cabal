@@ -55,6 +55,7 @@ library
                        ,Day6.MemoryReallocation
                        ,Day7.RecursiveCircus
                        ,Day8.UnusualRegisters
+                       ,Day9.StreamProcessing
                        ,Util.SplitList
 
   -- Modules included in this library but not exported.
@@ -86,6 +87,7 @@ Test-Suite test-advent
                       ,MemoryReallocationTest
                       ,RecursiveCircusTest
                       ,UnusualRegistersTest
+                      ,StreamProcessingTest
                       ,TestUtils
 
   hs-source-dirs:      tests
